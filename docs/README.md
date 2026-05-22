@@ -9,3 +9,4 @@ Indice de decisiones y pasos clave del backend.
 - 04 API: `docs/04_api/endpoints.md`
 - 05 Scheduler: `docs/05_scheduler/intervalo.md`
 - 06 Configuracion: `docs/06_config/env.md`
+- 07 Metricas: `docs/07_metricas/puntuacion_compra.md`

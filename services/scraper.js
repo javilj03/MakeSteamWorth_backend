@@ -64,6 +64,13 @@ async function scrapearTopCharts(url) {
         horas_jugadas_30_dias: parsearEnteroSeguro(juego.horas_jugadas_30_dias),
         pico_24h: null,
         pico_historico: null,
+        precio_centimos: null,
+        precio_moneda: null,
+        resenas_total: null,
+        resenas_positivas: null,
+        resenas_negativas: null,
+        resenas_score: null,
+        puntuacion_compra: null,
         fuente: 'top',
       }));
   });
@@ -121,6 +128,13 @@ async function scrapearDetalle(url, appIdSugerido) {
       pico_historico: parsearEnteroSeguro(datos.pico_historico),
       pico_30_dias: null,
       horas_jugadas_30_dias: null,
+      precio_centimos: null,
+      precio_moneda: null,
+      resenas_total: null,
+      resenas_positivas: null,
+      resenas_negativas: null,
+      resenas_score: null,
+      puntuacion_compra: null,
       fuente: 'detalle',
     };
   });

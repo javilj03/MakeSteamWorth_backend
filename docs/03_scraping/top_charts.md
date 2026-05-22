@@ -20,6 +20,7 @@ Fuente: `example.html`.
 - `steam_app_id` desde `data-appid` o `a[href*="/app/"]` (parsea `/app/<id>`).
 - Columnas 0..5: rango, nombre, actuales, (chart), pico 30 dias, horas 30 dias.
 - El chart se ignora porque no aporta valor numerico.
+- Al guardar, se enriquece con precio y reseñas de Steam Store para calcular `puntuacion_compra`.
 
 ## Decisiones y motivos
 

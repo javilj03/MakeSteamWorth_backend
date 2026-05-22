@@ -30,8 +30,44 @@ async function obtenerTop(limit = 100) {
 
 async function upsertJuego(juego) {
   const result = await query(
-    `insert into juegos (steam_app_id, nombre, rango, jugadores_actuales, pico_24h, pico_historico, pico_30_dias, horas_jugadas_30_dias, fuente, actualizado_en)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, now())
+    `insert into juegos (
+       steam_app_id,
+       nombre,
+       rango,
+       jugadores_actuales,
+       pico_24h,
+       pico_historico,
+       pico_30_dias,
+       horas_jugadas_30_dias,
+       precio_centimos,
+       precio_moneda,
+       resenas_total,
+       resenas_positivas,
+       resenas_negativas,
+       resenas_score,
+       puntuacion_compra,
+       fuente,
+       actualizado_en
+     )
+     values (
+       $1,
+       $2,
+       $3,
+       $4,
+       $5,
+       $6,
+       $7,
+       $8,
+       $9,
+       $10,
+       $11,
+       $12,
+       $13,
+       $14,
+       $15,
+       $16,
+       now()
+     )
      on conflict (steam_app_id, fuente)
      do update set
        nombre = excluded.nombre,
@@ -39,8 +75,15 @@ async function upsertJuego(juego) {
        jugadores_actuales = excluded.jugadores_actuales,
        pico_24h = excluded.pico_24h,
        pico_historico = excluded.pico_historico,
-        pico_30_dias = excluded.pico_30_dias,
-        horas_jugadas_30_dias = excluded.horas_jugadas_30_dias,
+       pico_30_dias = excluded.pico_30_dias,
+       horas_jugadas_30_dias = excluded.horas_jugadas_30_dias,
+       precio_centimos = coalesce(excluded.precio_centimos, juegos.precio_centimos),
+       precio_moneda = coalesce(excluded.precio_moneda, juegos.precio_moneda),
+       resenas_total = coalesce(excluded.resenas_total, juegos.resenas_total),
+       resenas_positivas = coalesce(excluded.resenas_positivas, juegos.resenas_positivas),
+       resenas_negativas = coalesce(excluded.resenas_negativas, juegos.resenas_negativas),
+       resenas_score = coalesce(excluded.resenas_score, juegos.resenas_score),
+       puntuacion_compra = coalesce(excluded.puntuacion_compra, juegos.puntuacion_compra),
        actualizado_en = now()
       returning *`,
     [
@@ -52,6 +95,13 @@ async function upsertJuego(juego) {
       juego.pico_historico,
       juego.pico_30_dias,
       juego.horas_jugadas_30_dias,
+      juego.precio_centimos,
+      juego.precio_moneda,
+      juego.resenas_total,
+      juego.resenas_positivas,
+      juego.resenas_negativas,
+      juego.resenas_score,
+      juego.puntuacion_compra,
       juego.fuente,
     ]
   );

@@ -1,6 +1,7 @@
 const { TOP_CHARTS_INTERVAL_MS } = require('../config');
 const { scrapearTopCharts } = require('./scraper');
 const { limpiarTop, upsertJuego } = require('./gameService');
+const { enriquecerJuegoConMetrica } = require('./metricas');
 
 let intervalo = null;
 let scrapingEnCurso = false;
@@ -20,7 +21,8 @@ async function ejecutarScrapingTop(url) {
     await limpiarTop();
     let guardados = 0;
     for (const juego of datos) {
-      await upsertJuego(juego);
+      const enriquecido = await enriquecerJuegoConMetrica(juego);
+      await upsertJuego(enriquecido);
       guardados += 1;
     }
 

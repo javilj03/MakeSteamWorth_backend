@@ -5,7 +5,7 @@
 - Devuelve el top de juegos desde base de datos.
 - Parametros: sin parametros.
 - Respuesta: `{ total, datos }`.
-- Incluye `pico_30_dias` y `horas_jugadas_30_dias` cuando estan disponibles.
+- Incluye `pico_30_dias`, `horas_jugadas_30_dias` y `puntuacion_compra` cuando estan disponibles.
 
 ## GET /api/juegos/buscar?nombre=
 
@@ -15,6 +15,7 @@
 - Si no esta en top, hace scraping de detalle.
 - Respuesta: `{ origen, datos }` o error.
 - Usa Puppeteer para cargar la pagina de detalle.
+- Se enriquece con precio y reseñas desde Steam Store para calcular `puntuacion_compra`.
 
 ## POST /api/juegos/scraping/top
 
@@ -22,6 +23,7 @@
 - Requiere `SCRAPE_TOP_URL` configurada.
 - Usa Puppeteer para cargar la pagina.
 - El top se mapea por `appId` (extraido del `href`) y actualiza los campos de 30 dias.
+- Se consultan precios y reseñas para calcular `puntuacion_compra` por juego.
 
 ## GET /api/juegos/steam/usuario/:steamId
 

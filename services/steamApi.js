@@ -97,7 +97,7 @@ async function getSteamPlayerSummary(appId) {
     throw new Error('Respuesta invalida de Steam API');
   }
 
-  return data.response.player_count || null;
+  return data.response.player_count ?? null;
 }
 
 async function getPlayerSummary(steamId) {
@@ -149,9 +149,76 @@ async function getUserStatsForGame(steamId, appId) {
   return data.playerstats;
 }
 
+async function getStoreAppDetails(appId) {
+  const url = `${STEAM_STORE_API_BASE_URL}/api/appdetails?appids=${appId}&cc=ES&l=spanish`;
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'MakeSteamWorthBot/1.0',
+      Accept: 'application/json',
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Steam Store API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const entry = data ? data[appId] : null;
+  if (!entry || !entry.success) {
+    return null;
+  }
+
+  const detalle = entry.data || {};
+  const priceOverview = detalle.price_overview || null;
+  const isFree = Boolean(detalle.is_free);
+  const precioCentimos = isFree
+    ? 0
+    : priceOverview && Number.isFinite(priceOverview.final)
+      ? priceOverview.final
+      : null;
+  const precioMoneda = priceOverview && priceOverview.currency
+    ? priceOverview.currency
+    : isFree
+      ? 'FREE'
+      : null;
+
+  return {
+    precio_centimos: precioCentimos,
+    precio_moneda: precioMoneda,
+    is_free: isFree,
+  };
+}
+
+async function getStoreAppReviews(appId) {
+  const url = `${STEAM_STORE_API_BASE_URL}/appreviews/${appId}?json=1&language=all&purchase_type=all`;
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'MakeSteamWorthBot/1.0',
+      Accept: 'application/json',
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Steam Store API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const summary = data ? data.query_summary : null;
+  if (!summary) {
+    return null;
+  }
+
+  return {
+    total_reviews: summary.total_reviews ?? null,
+    total_positive: summary.total_positive ?? null,
+    total_negative: summary.total_negative ?? null,
+    review_score: summary.review_score ?? null,
+  };
+}
+
 module.exports = {
   findAppIdByName,
   getSteamPlayerSummary,
   getPlayerSummary,
   getUserStatsForGame,
+  getStoreAppDetails,
+  getStoreAppReviews,
 };

@@ -9,6 +9,7 @@ const {
 } = require('../services/gameService');
 const { scrapearDetalle } = require('../services/scraper');
 const { findAppIdByName, getPlayerSummary, getUserStatsForGame } = require('../services/steamApi');
+const { enriquecerJuegoConMetrica } = require('../services/metricas');
 const { buildDetailUrl } = require('../utils/urlBuilder');
 
 const router = express.Router();
@@ -55,7 +56,8 @@ router.get('/buscar', async (req, res) => {
 
     const url = buildDetailUrl(SCRAPE_DETAIL_URL_TEMPLATE, appId);
     const detalle = await scrapearDetalle(url, appId);
-    const guardado = await upsertJuego(detalle);
+    const enriquecido = await enriquecerJuegoConMetrica(detalle);
+    const guardado = await upsertJuego(enriquecido);
     res.json({ origen: 'detalle', datos: guardado });
   } catch (error) {
     console.error('Error en buscar', error);

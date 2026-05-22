@@ -30,10 +30,11 @@ npm start
 ## Endpoints
 
 - `GET /` estado del servicio
-- `GET /charts/top` ultimo top 100 almacenado
-- `POST /charts/top/scrape` obtiene datos de top desde Steam API
-- `GET /charts/app/:appId` ultimo detalle almacenado por app
-- `POST /charts/app/:appId/scrape` obtiene datos actuales por app desde Steam API
+- `GET /api/juegos/top` ultimo top almacenado en base de datos
+- `GET /api/juegos/buscar?nombre=` busca juego por nombre y guarda si falta
+- `POST /api/juegos/scraping/top` fuerza el scraping del top
+- `GET /api/juegos/steam/usuario/:steamId` perfil publico de usuario
+- `GET /api/juegos/steam/usuario/:steamId/juego/:appId` estadisticas por juego
 
 ## Notas
-- El scraping de SteamDB no esta habilitado por restricciones del sitio.
+- Los datos se enriquecen con precio y reseñas para calcular `puntuacion_compra`.

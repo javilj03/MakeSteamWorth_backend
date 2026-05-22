@@ -21,6 +21,7 @@ Fuente: `example2.html`.
 - `playing` -> `jugadores_actuales`.
 - `24-hour` -> `pico_24h`.
 - `all-time` -> `pico_historico`.
+- Al guardar, se enriquece con precio y reseñas de Steam Store para calcular `puntuacion_compra`.
 
 ## Decisiones y motivos
 
