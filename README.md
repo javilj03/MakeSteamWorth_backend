@@ -6,20 +6,6 @@ Backend en Express para recolectar datos de Steam (API oficial) y almacenarlos e
 - Node 18+
 - PostgreSQL
 
-## Configuracion
-
-Crear `.env` basado en `.env.example` y completar credenciales (para Docker Compose, usa el `.env` en la raiz del proyecto):
-
-```
-PORT=3000
-PGHOST=db
-PGDATABASE=makesteamworth
-PGUSER=makesteamworth
-PGPASSWORD=change_me
-PGPORT=5432
-PGSSLMODE=disable
-TOP_CHARTS_INTERVAL_MINUTES=30
-```
 
 ## Ejecutar
 
