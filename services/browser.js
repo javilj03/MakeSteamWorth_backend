@@ -1,3 +1,5 @@
+const fs = require('fs/promises');
+const path = require('path');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
@@ -30,10 +32,52 @@ const CLOUDFLARE_SELECTORS = [
   'iframe[src*="captcha"]',
 ];
 
+const USER_DATA_LOCK_FILES = [
+  'SingletonLock',
+  'SingletonSocket',
+  'SingletonCookie',
+  'SingletonSync',
+];
+
 function construirViewport() {
   const width = 1365 + Math.floor(Math.random() * 120);
   const height = 768 + Math.floor(Math.random() * 120);
   return { width, height };
+}
+
+async function limpiarLocksUserDataDir(userDataDir) {
+  if (!userDataDir) {
+    return;
+  }
+
+  await Promise.all(
+    USER_DATA_LOCK_FILES.map(async (archivo) => {
+      const ruta = path.join(userDataDir, archivo);
+      try {
+        await fs.unlink(ruta);
+      } catch (error) {
+        if (error && error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
+    })
+  );
+}
+
+async function prepararUserDataDir() {
+  if (!PUPPETEER_USER_DATA_DIR) {
+    return null;
+  }
+
+  const resolved = path.resolve(PUPPETEER_USER_DATA_DIR);
+  await fs.mkdir(resolved, { recursive: true });
+  await limpiarLocksUserDataDir(resolved);
+  return resolved;
+}
+
+function esPerfilBloqueado(error) {
+  const mensaje = String(error?.message || '').toLowerCase();
+  return mensaje.includes('profile appears to be in use') || mensaje.includes('singletonlock');
 }
 
 async function obtenerEstadoCloudflare(page) {
@@ -82,7 +126,7 @@ async function esperarDesafioCloudflare(page) {
   }
 }
 
-function buildLaunchOptions() {
+function buildLaunchOptions(userDataDir) {
   const launchArgs = [
     '--no-sandbox',
     '--disable-setuid-sandbox',
@@ -103,8 +147,8 @@ function buildLaunchOptions() {
     args: launchArgs,
   };
 
-  if (PUPPETEER_USER_DATA_DIR) {
-    options.userDataDir = PUPPETEER_USER_DATA_DIR;
+  if (userDataDir) {
+    options.userDataDir = userDataDir;
   }
 
   if (PUPPETEER_EXECUTABLE_PATH) {
@@ -115,11 +159,26 @@ function buildLaunchOptions() {
 }
 
 async function crearBrowser() {
-  const browser = await puppeteer.launch(buildLaunchOptions());
-  browser.on('disconnected', () => {
-    browserPromise = null;
-  });
-  return browser;
+  const userDataDir = await prepararUserDataDir();
+  const options = buildLaunchOptions(userDataDir);
+
+  try {
+    const browser = await puppeteer.launch(options);
+    browser.on('disconnected', () => {
+      browserPromise = null;
+    });
+    return browser;
+  } catch (error) {
+    if (userDataDir && esPerfilBloqueado(error)) {
+      await limpiarLocksUserDataDir(userDataDir);
+      const browser = await puppeteer.launch(options);
+      browser.on('disconnected', () => {
+        browserPromise = null;
+      });
+      return browser;
+    }
+    throw error;
+  }
 }
 
 async function getBrowser() {

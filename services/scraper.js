@@ -96,6 +96,7 @@ async function scrapearDetalle(url, appIdSugerido) {
         jugadores_actuales: null,
         pico_24h: null,
         pico_historico: null,
+        pico_30_dias: null,
       };
 
       items.forEach((item) => {
@@ -112,6 +113,19 @@ async function scrapearDetalle(url, appIdSugerido) {
         }
       });
 
+      const filas = Array.from(document.querySelectorAll('table.common-table tbody tr'));
+      const filaUltimos30 = filas.find((fila) => {
+        const etiqueta = fila.querySelector('.month-cell')?.textContent?.trim().toLowerCase();
+        return etiqueta === 'last 30 days';
+      });
+
+      if (filaUltimos30) {
+        const celdas = Array.from(filaUltimos30.querySelectorAll('td'));
+        const picoCelda = celdas[4];
+        const valor = picoCelda ? picoCelda.textContent?.trim() : '';
+        resultado.pico_30_dias = valor || null;
+      }
+
       return resultado;
     });
 
@@ -126,7 +140,7 @@ async function scrapearDetalle(url, appIdSugerido) {
       jugadores_actuales: parsearEnteroSeguro(datos.jugadores_actuales),
       pico_24h: parsearEnteroSeguro(datos.pico_24h),
       pico_historico: parsearEnteroSeguro(datos.pico_historico),
-      pico_30_dias: null,
+      pico_30_dias: parsearEnteroSeguro(datos.pico_30_dias),
       horas_jugadas_30_dias: null,
       precio_centimos: null,
       precio_moneda: null,
